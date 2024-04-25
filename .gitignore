@@ -2,7 +2,7 @@
 *.egg-info/
 .eggs/
 build/
-dist*/
+
 /venv*/
 /.tox/
 /releases*/

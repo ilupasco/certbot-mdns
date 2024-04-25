@@ -8,6 +8,11 @@ git clone https://github.com/ilupasco/certbot-mdns.git
 cd certbot-mdns
 python3 setup.py install
 ```
+or
+```bash
+wget https://github.com/ilupasco/certbot-mdns/raw/main/dist/certbot_mdns-1.0.1-py3-none-any.whl
+pip3 install -U certbot_mdns-1.0.1-py3-none-any.whl
+```
 
 ## Credentials
 

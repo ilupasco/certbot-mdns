@@ -107,7 +107,7 @@ class _MdnsClient:
             )
 
         # record_id = self._find_txt_record_id(domain_id, domain_name, record_name, record_content)
-        record_id = response.json()["data"]["id"]
+        record_id = response.json()["results"]["id"]
         logger.debug("Successfully added TXT record with record_id: %s", record_id)
 
     def del_txt_record(self, domain: str, record_name: str, record_content: str) -> None:
@@ -174,7 +174,7 @@ class _MdnsClient:
                 )
 
             response = response.json()
-            if response.get("response") == "OK":
+            if response.get("status") == "OK":
                 return 1, zone_name_guess
 
         raise errors.PluginError("Could not find domain in account.")

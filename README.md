@@ -15,9 +15,6 @@ You need to supply Certbot with your  API credentials, this is an example of how
 
 ```ini
 # API credentials Auth Token by Certbot
-# JWT example
-mdns_auth_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImluZm9AbmljLm1kIiwicm9sZSI6ImRucyIsImRvbWFpbiI6Im5pYy5tZCIsIm5vdGUiOiJ0ZXN0IHRva2VuICIsInR0bCI6eyJkYXlzIjoxfSwiZXhwIjoxNzEzNjEwOTQ4fQ.1ID0LbI4H_Hjei8DAWqG8JkULPhn1tNxtD6mo280NhQ
-# AUTH example
 mdns_auth_token = 1ID0LbI4H_Hjei8DAWqG8JkULPhn1tNxtD6mo280NhQ
 ```
 

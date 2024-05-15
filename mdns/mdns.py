@@ -68,6 +68,7 @@ class _MdnsClient:
         token = token
         self.headers = {"Accept": "application/json", "Authorization": f'{token}'}
         self.record_id = -1
+        self.domain_name = ""
 
     def add_txt_record(self, domain: str, record_name: str, record_content: str) -> None:
         """
@@ -125,18 +126,20 @@ class _MdnsClient:
         :param str record_content: The record content (typically the challenge validation).
         """
 
-        try:
-            domain_id, domain_name = self._find_domain_id(domain)
-        except errors.PluginError as e:
-            logger.debug("Encountered error finding domain_id during deletion: %s", e)
-            return
+        # try:
+        #     domain_id, domain_name = self._find_domain_id(domain)
+        # except errors.PluginError as e:
+        #     logger.debug("Encountered error finding domain_id during deletion: %s", e)
+        #     return
         
         if self.record_id != -1:
-            response = requests.delete(f"{API_BASE_URL}/{domain_name}/record/{self.record_id}", headers=self.headers,)
+            response = requests.delete(f"{API_BASE_URL}/{self.domain_name}/record/{self.record_id}", headers=self.headers,)
             if response.status_code != 200:
                 logger.error("API error (%s): %s", response.status_code, response.text)
             else:
-                logger.debug("TXT record not found; no cleanup needed.")           
+                logger.debug("TXT record not found; no cleanup needed.")
+        else:
+            logger.debug("Record ID not found.")
 
         # if domain_id:
         #     record_id = self._find_txt_record_id(domain_id, domain_name, record_name, record_content)
@@ -171,18 +174,14 @@ class _MdnsClient:
             if "." not in zone_name_guess:
                 continue
 
-            response = requests.get(
-                f"{API_BASE_URL}/check?name={zone_name_guess}",
-                headers=self.headers,
-            )
+            response = requests.get(f"{API_BASE_URL}/check?name={zone_name_guess}",headers=self.headers,)
 
             if response.status_code != 200:
-                raise errors.PluginError(
-                    f"API error ({response.status_code}): {response.text}"
-                )
+                raise errors.PluginError(f"API error ({response.status_code}): {response.text}")
 
             response = response.json()
             if response.get("status") == "OK":
+                self.domain_name = zone_name_guess
                 return 1, zone_name_guess
 
         raise errors.PluginError("Could not find domain in account.")

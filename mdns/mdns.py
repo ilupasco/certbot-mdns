@@ -66,7 +66,7 @@ class _MdnsClient:
 
     def __init__(self, token: str) -> None:
         token = token
-        self.headers = {"Accept": "application/json", "Authorization": f'Bearer {token}'}
+        self.headers = {"Accept": "application/json", "Authorization": f'{token}'}
 
     def add_txt_record(self, domain: str, record_name: str, record_content: str) -> None:
         """

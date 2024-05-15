@@ -108,7 +108,7 @@ class _MdnsClient:
             )
 
         # record_id = self._find_txt_record_id(domain_id, domain_name, record_name, record_content)
-        self.record_id = response.json()["results"]["id"]
+        self.record_id = response.json().get("results")[0]["id"]
         logger.debug("Successfully added TXT record with record_id: %s", self.record_id)
 
     def del_txt_record(self, domain: str, record_name: str, record_content: str) -> None:
@@ -132,7 +132,7 @@ class _MdnsClient:
             return
         
         if self.record_id != -1:
-            response = requests.delete(f"{API_BASE_URL}/{domain_name}/record/{record_id}", headers=self.headers,)
+            response = requests.delete(f"{API_BASE_URL}/{domain_name}/record/{self.record_id}", headers=self.headers,)
             if response.status_code != 200:
                 logger.error("API error (%s): %s", response.status_code, response.text)
             else:

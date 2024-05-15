@@ -67,6 +67,7 @@ class _MdnsClient:
     def __init__(self, token: str) -> None:
         token = token
         self.headers = {"Accept": "application/json", "Authorization": f'{token}'}
+        self.record_id = -1
 
     def add_txt_record(self, domain: str, record_name: str, record_content: str) -> None:
         """
@@ -107,8 +108,8 @@ class _MdnsClient:
             )
 
         # record_id = self._find_txt_record_id(domain_id, domain_name, record_name, record_content)
-        record_id = response.json()["results"]["id"]
-        logger.debug("Successfully added TXT record with record_id: %s", record_id)
+        self.record_id = response.json()["results"]["id"]
+        logger.debug("Successfully added TXT record with record_id: %s", self.record_id)
 
     def del_txt_record(self, domain: str, record_name: str, record_content: str) -> None:
         """
@@ -129,22 +130,29 @@ class _MdnsClient:
         except errors.PluginError as e:
             logger.debug("Encountered error finding domain_id during deletion: %s", e)
             return
-
-        if domain_id:
-            record_id = self._find_txt_record_id(domain_id, domain_name, record_name, record_content)
-            if record_id:
-                response = requests.delete(
-                    f"{API_BASE_URL}/{domain_name}/record/{record_id}",
-                    headers=self.headers,
-                )
-                if response.status_code != 200:
-                    logger.error(
-                        "API error (%s): %s", response.status_code, response.text
-                    )
+        
+        if self.record_id != -1:
+            response = requests.delete(f"{API_BASE_URL}/{domain_name}/record/{record_id}", headers=self.headers,)
+            if response.status_code != 200:
+                logger.error("API error (%s): %s", response.status_code, response.text)
             else:
-                logger.debug("TXT record not found; no cleanup needed.")
-        else:
-            logger.debug("Zone not found; no cleanup needed.")
+                logger.debug("TXT record not found; no cleanup needed.")           
+
+        # if domain_id:
+        #     record_id = self._find_txt_record_id(domain_id, domain_name, record_name, record_content)
+        #     if record_id:
+        #         response = requests.delete(
+        #             f"{API_BASE_URL}/{domain_name}/record/{record_id}",
+        #             headers=self.headers,
+        #         )
+        #         if response.status_code != 200:
+        #             logger.error(
+        #                 "API error (%s): %s", response.status_code, response.text
+        #             )
+        #     else:
+        #         logger.debug("TXT record not found; no cleanup needed.")
+        # else:
+        #     logger.debug("Zone not found; no cleanup needed.")
 
     def _find_domain_id(self, domain: str) -> Tuple[str, str]:
         """
@@ -209,7 +217,8 @@ class _MdnsClient:
         for record in response.json()["results"]:
             if (
                     record["type"] == "TXT"
-                    and (record["name"] in record_name or record_name in record["name"])
+                    and (record["name"] in record_name 
+                    or record_name in record["name"])
                     # record content is wrapped in quotes for TXT records
                     and record["content"] in f"{record_content}"
             ):
